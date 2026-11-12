@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CareBook – Interactive Prototype</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🩺</text></svg>">
+<style>
+:root{--bg:#f2f8fb;--fg:#17324d;--mut:#5b7185;--line:#d5e4ec;--card:#fff;--soft:#eaf4f8;--acc:#087f8c;--accfg:#fff;--ok:#16734a;--okbg:#e1f5eb;--bad:#b8323c;--badbg:#fdebed;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101216;--fg:#f1f2f5;--mut:#a9aebb;--line:#343845;--card:#171a21;--soft:#1e222b;--acc:#6ea0ff;--accfg:#08101f;--ok:#7fdc9f;--okbg:#17301f;--bad:#ff9a92;--badbg:#3a1c1a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#101216;--fg:#f1f2f5;--mut:#a9aebb;--line:#343845;--card:#171a21;--soft:#1e222b;--acc:#6ea0ff;--accfg:#08101f;--ok:#7fdc9f;--okbg:#17301f;--bad:#ff9a92;--badbg:#3a1c1a;color-scheme:dark}
+html{font-size:16px;scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.45;min-height:100vh;display:flex;flex-direction:column}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:1px solid var(--line);box-shadow:0 3px 14px rgba(23,50,77,.07);display:flex;align-items:center;gap:1rem;padding:.6rem 1rem;flex-wrap:wrap}
+.logo{font-weight:800;font-size:1.35rem;margin-right:.5rem;color:var(--acc);letter-spacing:-.04em}
+nav{display:flex;gap:.25rem;flex:1}
+nav button{background:none;border:0;border-bottom:3px solid transparent;padding:.5rem .7rem;color:var(--mut);font-weight:500;min-height:44px}
+nav button[aria-current="page"]{color:var(--fg);border-color:var(--acc);font-weight:700}
+.badge{background:var(--acc);color:var(--accfg);border-radius:99px;font-size:.75rem;padding:0 .45rem;margin-left:.3rem;font-weight:700}
+.tools{display:flex;gap:.4rem;align-items:center;position:relative}
+.ibtn{min-width:44px;min-height:44px;border:1px solid var(--line);background:var(--card);border-radius:10px;font-weight:700}
+.av{width:44px;height:44px;border-radius:50%;background:var(--soft);color:var(--acc);display:grid;place-items:center;font-weight:800;border:1px solid var(--line);flex:none}
+.av-btn{width:44px;height:44px;border-radius:50%;background:var(--soft);color:var(--acc);display:grid;place-items:center;font-weight:800;border:1.5px solid var(--acc);flex:none;padding:0}
+.prof-menu{position:absolute;right:0;top:52px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 28px rgba(0,0,0,.15);padding:.8rem;min-width:230px;z-index:25}
+.prof-menu .p-head{padding-bottom:.6rem;margin-bottom:.6rem;border-bottom:1px solid var(--line)}
+.prof-menu .p-name{font-weight:700;display:block}
+.prof-menu .p-email{font-size:.82rem;color:var(--mut);word-break:break-all}
+main{max-width:960px;width:100%;margin:0 auto;padding:2rem 1rem 3rem;flex:1}
+h1{font-size:1.85rem;margin:0 0 .3rem;color:var(--fg);letter-spacing:-.035em}
+.sub{color:var(--mut);margin:0 0 1.2rem}
+.search{position:relative;max-width:560px;margin:0 auto 1rem}
+.search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--mut)}
+.search input{width:100%;padding:.85rem 1rem .85rem 2.7rem;border:2px solid var(--line);border-radius:12px;background:var(--card);font-size:1rem}
+.chips{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-bottom:1.5rem}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:99px;padding:.5rem .9rem;min-height:44px}
+.chip[aria-pressed="true"]{background:var(--acc);color:var(--accfg);border-color:var(--acc);font-weight:700}
+.bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;gap:1rem;flex-wrap:wrap}
+.bar h2{margin:0;font-size:1.1rem}
+.bar select{padding:.5rem;border:1px solid var(--line);border-radius:8px;background:var(--card);min-height:44px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1.1rem;box-shadow:0 5px 18px rgba(23,50,77,.06);transition:transform .18s ease,box-shadow .18s ease}.card:hover{transform:translateY(-2px);box-shadow:0 9px 24px rgba(23,50,77,.10)}
+.doc{display:flex;gap:.8rem;align-items:center;margin-bottom:.7rem}
+.doc .av{width:52px;height:52px}
+.doc b{display:block;font-size:1.05rem}
+.mut{color:var(--mut);font-size:.9rem}
+.next{font-size:.85rem;color:var(--ok);font-weight:600;margin:.4rem 0 .8rem}
+.btn{display:inline-flex;justify-content:center;align-items:center;min-height:44px;padding:.5rem 1rem;border-radius:10px;border:1.5px solid var(--fg);background:var(--card);font-weight:600;gap:.4rem}
+.btn.full{width:100%}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:var(--accfg)}
+.btn.dng{border-color:var(--bad);color:var(--bad)}
+.btn.ghost{border-color:var(--line);color:var(--mut)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.appt{display:flex;gap:1rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap}
+.date{width:60px;text-align:center;background:var(--soft);color:var(--acc);border-radius:12px;padding:.4rem 0;flex:none}
+.date small{display:block;font-weight:700;color:var(--mut);font-size:.72rem}
+.date strong{font-size:1.3rem}
+.info{flex:1;min-width:200px}
+.info .t{font-size:1.15rem;font-weight:700}
+.pill{display:inline-block;background:var(--okbg);color:var(--ok);font-size:.78rem;font-weight:700;border-radius:99px;padding:.1rem .6rem;margin-left:.4rem;vertical-align:middle}
+.acts{display:flex;gap:.5rem}
+.sec{display:flex;align-items:center;gap:.8rem;margin:2rem 0 1rem;color:var(--mut);font-size:.8rem;letter-spacing:.08em;font-weight:700}
+.sec::after{content:"";flex:1;height:1px;background:var(--line)}
+.empty{text-align:center;padding:2rem 1rem;border:2px dashed var(--line);border-radius:14px;color:var(--mut)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.8rem 0;border-bottom:1px solid var(--line)}
+.row:last-child{border:0}
+.sw{width:52px;height:30px;border-radius:99px;border:0;background:var(--line);position:relative;flex:none}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .15s}
+.sw[aria-checked="true"]{background:var(--acc)}
+.sw[aria-checked="true"]::after{left:25px}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:grid;place-items:center;padding:1rem;z-index:20}
+.dlg{background:var(--card);border-radius:16px;max-width:520px;width:100%;max-height:92vh;overflow:auto;padding:1.4rem}
+.dlg h3{margin:0 0 .2rem;font-size:1.3rem}
+.steps{display:flex;gap:.4rem;margin:.8rem 0 1.1rem}
+.steps i{flex:1;height:6px;border-radius:9px;background:var(--line)}
+.steps i.on{background:var(--acc)}
+.days,.slots{display:flex;flex-wrap:wrap;gap:.5rem;margin:.5rem 0 1.1rem}
+.days button,.slots button{border:1.5px solid var(--line);background:var(--card);border-radius:10px;padding:.5rem .7rem;min-height:44px;min-width:64px}
+.days button[aria-pressed="true"],.slots button[aria-pressed="true"]{border-color:var(--acc);background:var(--acc);color:var(--accfg);font-weight:700}
+.slots button:disabled{text-decoration:line-through;opacity:.4;cursor:not-allowed}
+label.l{display:block;font-weight:600;margin-bottom:.3rem}
+textarea,.dlg select,.inp{width:100%;padding:.7rem;border:1.5px solid var(--line);border-radius:10px;background:var(--card)}
+.foot{display:flex;justify-content:space-between;gap:.5rem;margin-top:1.2rem}
+.sum{background:var(--soft);border-radius:12px;padding:.9rem;margin:.8rem 0}
+.sum div{display:flex;justify-content:space-between;gap:1rem;padding:.2rem 0}
+.toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:.8rem 1.1rem;border-radius:12px;z-index:30;max-width:92vw}
+footer{border-top:1px solid var(--line);background:var(--soft);padding:1.2rem 1rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:.8rem;color:var(--mut);font-size:.9rem;max-width:960px;width:100%;margin:0 auto}
+footer a{color:var(--mut);margin-left:1rem}
+.note{background:var(--soft);border-left:4px solid var(--acc);padding:.7rem 1rem;border-radius:8px;font-size:.9rem;margin-bottom:1.2rem}
+/* Login View Styles */
+.auth-wrap{max-width:440px;margin:1.5rem auto}
+.auth-card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:1.8rem;box-shadow:0 10px 30px rgba(23,50,77,.08)}
+.auth-brand{display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem}
+.auth-brand .mark{width:42px;height:42px;border-radius:12px;background:var(--soft);color:var(--acc);display:grid;place-items:center;font-size:1.35rem;border:1px solid var(--line)}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;background:var(--soft);padding:.3rem;border-radius:12px;margin:1.2rem 0}
+.tabs button{border:0;background:transparent;padding:.55rem;border-radius:9px;font-weight:600;color:var(--mut);min-height:42px}
+.tabs button[aria-selected="true"]{background:var(--card);color:var(--fg);box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.fg{margin-bottom:1rem}
+.pw-box{position:relative;display:flex;align-items:center}
+.pw-box .inp{padding-right:4.2rem}
+.pw-tog{position:absolute;right:8px;background:none;border:0;color:var(--acc);font-weight:700;font-size:.82rem;padding:.35rem .5rem;min-height:34px}
+.err-box{background:var(--badbg);color:var(--bad);border:1px solid var(--bad);border-radius:10px;padding:.65rem .85rem;font-size:.9rem;margin-bottom:1rem;font-weight:500}
+.divider{display:flex;align-items:center;gap:.7rem;margin:1.2rem 0;color:var(--mut);font-size:.82rem}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
+</style></head>
+<body>
+<header>
+<span class="logo">🩺 CareBook</span>
+<nav id="mainNav" aria-label="Main"><button data-v="doctors">Doctors</button><button data-v="visits">My visits<span id="cnt" class="badge"></span></button><button data-v="rem">Reminders</button></nav>
+<div class="tools">
+<button class="ibtn" id="tsz" aria-label="Change text size" title="Change text size">A+</button>
+<button class="ibtn" id="tth" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
+<span id="profWrap"></span>
+</div>
+</header>
+<main id="app"></main>
+<footer><span>© 2026 CareBook HCI prototype. Appointment information shown is for project presentation purposes.</span><span><a href="#" onclick="return false" aria-label="Privacy policy placeholder">Privacy (prototype)</a><a href="#" onclick="return false" aria-label="Terms placeholder">Terms (prototype)</a><a href="#" onclick="return false" aria-label="Support placeholder">Support (prototype)</a></span></footer>
+<div id="layer"></div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const DOCS=[["Lebusa Molise","Cardiology",4.9,"Block A, Room 12"],["Ziyabolela Memane","Pediatrics",4.8,"Block B, Room 3"],["Lerato Khumalo","General Practice",4.7,"Block A, Room 2"],["Palesa Ndlovu","Dermatology",4.9,"Block C, Room 7"],["Kabelo Mofokeng","Orthopedics",4.6,"Block C, Room 1"],["Mpho Letsoalo","Gynecology",4.8,"Block B, Room 9"]].map((d,i)=>({id:i,n:"Dr. "+d[0],s:d[1],r:d[2],l:d[3],ini:d[0].split(" ").map(x=>x[0]).join("")}));
+const SPECS=["All",...new Set(DOCS.map(d=>d.s))];
+const SLOTS=["08:30","09:30","10:30","11:30","13:00","14:00","15:30","16:30"];
+const addD=n=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);return d};
+const fD=d=>d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
+const fT=t=>{let[h,m]=t.split(":").map(Number);return(h%12||12)+":"+String(m).padStart(2,"0")+" "+(h<12?"AM":"PM")};
+
+// --- Authentication State & Storage ---
+const AUTH_KEY="carebook-auth-v1";
+const DEMO_USER={name:"Thabo Mokoena",email:"patient@carebook.demo",password:"carebook123"};
+let AUTH={
+ users:[DEMO_USER],
+ currentUser:null,
+ mode:"login", // "login" | "signup"
+ err:"",
+ showPw:false,
+ menuOpen:false
+};
+
+try{
+ const savedAuth=JSON.parse(localStorage.getItem(AUTH_KEY)||"null");
+ if(savedAuth){
+  if(Array.isArray(savedAuth.users)&&savedAuth.users.length)AUTH.users=savedAuth.users;
+  if(savedAuth.currentUser&&savedAuth.currentUser.email)AUTH.currentUser=savedAuth.currentUser;
+ }
+}catch(e){}
+
+function persistAuth(){
+ try{
+  localStorage.setItem(AUTH_KEY,JSON.stringify({users:AUTH.users,currentUser:AUTH.currentUser}));
+ }catch(e){}
+}
+
+const getInitials=name=>(name||"CB").trim().split(/\s+/).slice(0,2).map(w=>w[0].toUpperCase()).join("")||"CB";
+
+// --- App State & Storage ---
+let S={v:"doctors",q:"",f:"All",sort:"relevance",uid:3,
+appts:[{id:1,doc:0,date:addD(3),time:"09:30",reason:"Routine appointment"},{id:2,doc:3,date:addD(6),time:"14:00",reason:"Routine skin check"}],
+past:[{doc:2,date:addD(-30),reason:"Routine Physical",note:"Visit summary information is provided for interface illustration."}],
+pref:{sms:true,email:true,push:false,when:"24 hours"},sz:0};
+
+const STORAGE_KEY="carebook-hci-v1";
+try{
+ const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");
+ if(saved){
+  if(Array.isArray(saved.appts))S.appts=saved.appts.map(a=>({...a,date:new Date(a.date),reason:a.reason==="Follow-up checkup after medication"?"Routine appointment":a.reason==="Annual skin screening"?"Routine skin check":a.reason}));
+  if(Array.isArray(saved.past))S.past=saved.past.map(a=>({...a,date:new Date(a.date),note:a.note==="Blood pressure and weight normal. Next routine check in 12 months."?"Visit summary information is provided for interface illustration.":a.note}));
+  if(saved.pref)S.pref={...S.pref,...saved.pref};
+  if(Number.isInteger(saved.uid))S.uid=saved.uid;
+ }
+}catch(e){}
+
+function persistState(){
+ try{localStorage.setItem(STORAGE_KEY,JSON.stringify({appts:S.appts,past:S.past,pref:S.pref,uid:S.uid}));}
+ catch(e){toast("This browser could not save changes. Your changes may be lost when you close the page.");}
+}
+
+const baseAvail=(doc,off,i)=>(doc*3+off*5+i)%4!==0;
+const slotAvailable=(doc,off,i)=>{
+ if(!baseAvail(doc,off,i))return false;
+ const day=addD(off).getTime();
+ return !S.appts.some(a=>a.doc===doc&&a.date.getTime()===day&&a.time===SLOTS[i]&&a.id!==B?.rid);
+};
+const nextFree=doc=>{for(let o=1;o<14;o++)for(let i=0;i<8;i++)if(slotAvailable(doc,o,i))return fD(addD(o))+", "+fT(SLOTS[i])};
+function toast(m){const t=document.createElement("div");t.className="toast";t.setAttribute("role","status");t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),3200)}
+
+// --- Login & Registration Views/Actions ---
+function vAuth(){
+ const isLogin=AUTH.mode==="login";
+ return `<div class="auth-wrap">
+  <div class="auth-card">
+   <div class="auth-brand">
+    <div class="mark" aria-hidden="true">🩺</div>
+    <div>
+     <h1 style="font-size:1.45rem;margin:0">CareBook Portal</h1>
+     <div class="mut">Patient appointment management</div>
+    </div>
+   </div>
+   <div class="tabs" role="tablist" aria-label="Authentication mode">
+    <button role="tab" aria-selected="${isLogin}" onclick="setAuthMode('login')">Sign In</button>
+    <button role="tab" aria-selected="${!isLogin}" onclick="setAuthMode('signup')">Create Account</button>
+   </div>
+   ${AUTH.err?`<div class="err-box" role="alert">${esc(AUTH.err)}</div>`:""}
+   <form id="authForm" novalidate>
+    ${!isLogin?`<div class="fg">
+     <label class="l" for="aName">Full Name</label>
+     <input class="inp" id="aName" type="text" autocomplete="name" placeholder="e.g. Thabo Mokoena" required>
+    </div>`:""}
+    <div class="fg">
+     <label class="l" for="aEmail">Email Address</label>
+     <input class="inp" id="aEmail" type="email" autocomplete="email" placeholder="you@example.com" required>
+    </div>
+    <div class="fg">
+     <label class="l" for="aPw">Password</label>
+     <div class="pw-box">
+      <input class="inp" id="aPw" type="${AUTH.showPw?"text":"password"}" autocomplete="${isLogin?"current-password":"new-password"}" placeholder="${isLogin?"Enter your password":"At least 6 characters"}" required>
+      <button type="button" class="pw-tog" onclick="togglePw()" aria-label="${AUTH.showPw?"Hide password":"Show password"}">${AUTH.showPw?"Hide":"Show"}</button>
+     </div>
+    </div>
+    ${!isLogin?`<div class="fg">
+     <label class="l" for="aPw2">Confirm Password</label>
+     <input class="inp" id="aPw2" type="${AUTH.showPw?"text":"password"}" autocomplete="new-password" placeholder="Re-enter password" required>
+    </div>`:""}
+    <button type="submit" class="btn pri full">${isLogin?"Sign In":"Create Account"}</button>
+   </form>
+   <div class="divider">OR</div>
+   <button type="button" class="btn full" onclick="demoLogin()">Continue with Demo Patient Account</button>
+   <p class="mut" style="font-size:.8rem;margin:.9rem 0 0;text-align:center">Demo credentials: <b>patient@carebook.demo</b> / <b>carebook123</b></p>
+  </div>
+ </div>`;
+}
+
+function setAuthMode(m){
+ AUTH.mode=m;
+ AUTH.err="";
+ render();
+}
+
+function togglePw(){
+ const pwEl=$("#aPw");
+ const pw2El=$("#aPw2");
+ const v1=pwEl?pwEl.value:"";
+ const v2=pw2El?pw2El.value:"";
+ AUTH.showPw=!AUTH.showPw;
+ render();
+ if($("#aPw")){$("#aPw").value=v1;$("#aPw").focus();}
+ if($("#aPw2"))$("#aPw2").value=v2;
+}
+
+function handleAuthSubmit(e){
+ e.preventDefault();
+ AUTH.err="";
+ const email=($("#aEmail")?.value||"").trim().toLowerCase();
+ const pw=$("#aPw")?.value||"";
+ const emailOk=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+ if(AUTH.mode==="login"){
+  if(!emailOk){AUTH.err="Please enter a valid email address.";render();return;}
+  if(!pw){AUTH.err="Please enter your password.";render();return;}
+  const found=AUTH.users.find(u=>u.email.toLowerCase()===email&&u.password===pw);
+  if(!found){
+   AUTH.err="Invalid email or password. Try the demo account or create a new one.";
+   render();
+   return;
+  }
+  AUTH.currentUser={name:found.name,email:found.email};
+  persistAuth();
+  render();
+  toast("Welcome back, "+found.name+"!");
+ }else{
+  const name=($("#aName")?.value||"").trim();
+  const pw2=$("#aPw2")?.value||"";
+  if(name.length<2){AUTH.err="Please enter your full name.";render();return;}
+  if(!emailOk){AUTH.err="Please enter a valid email address.";render();return;}
+  if(pw.length<6){AUTH.err="Password must be at least 6 characters long.";render();return;}
+  if(pw!==pw2){AUTH.err="Passwords do not match.";render();return;}
+  if(AUTH.users.some(u=>u.email.toLowerCase()===email)){
+   AUTH.err="An account with this email already exists. Please sign in instead.";
+   render();
+   return;
+  }
+  const newUser={name,email,password:pw};
+  AUTH.users.push(newUser);
+  AUTH.currentUser={name,email};
+  persistAuth();
+  render();
+  toast("Account created! Welcome, "+name+".");
+ }
+}
+
+function demoLogin(){
+ AUTH.err="";
+ AUTH.currentUser={name:DEMO_USER.name,email:DEMO_USER.email};
+ persistAuth();
+ render();
+ toast("Signed in as "+DEMO_USER.name);
+}
+
+function signOut(){
+ AUTH.currentUser=null;
+ AUTH.menuOpen=false;
+ AUTH.err="";
+ persistAuth();
+ render();
+ toast("You have been signed out.");
+}
+
+function toggleProfMenu(e){
+ e.stopPropagation();
+ AUTH.menuOpen=!AUTH.menuOpen;
+ renderHeaderProfile();
+}
+
+document.addEventListener("click",e=>{
+ if(AUTH.menuOpen&&!e.target.closest("#profWrap")){
+  AUTH.menuOpen=false;
+  renderHeaderProfile();
+ }
+});
+
+function renderHeaderProfile(){
+ const wrap=$("#profWrap");
+ if(!wrap)return;
+ if(!AUTH.currentUser){
+  wrap.innerHTML=`<span class="av" aria-label="Guest profile">CB</span>`;
+  return;
+ }
+ const ini=getInitials(AUTH.currentUser.name);
+ wrap.innerHTML=`<button type="button" class="av-btn" id="profBtn" aria-expanded="${AUTH.menuOpen}" aria-label="Account menu for ${esc(AUTH.currentUser.name)}">${esc(ini)}</button>
+ ${AUTH.menuOpen?`<div class="prof-menu" role="menu">
+  <div class="p-head">
+   <span class="p-name">${esc(AUTH.currentUser.name)}</span>
+   <span class="p-email">${esc(AUTH.currentUser.email)}</span>
+  </div>
+  <button type="button" class="btn dng full" onclick="signOut()">Sign out</button>
+ </div>`:""}`;
+ $("#profBtn").onclick=toggleProfMenu;
+}
+
+// --- Core Render Pipeline ---
+function render(){
+ const nav=$("#mainNav");
+ renderHeaderProfile();
+
+ if(!AUTH.currentUser){
+  nav.style.visibility="hidden";
+  $("#app").innerHTML=vAuth();
+  const form=$("#authForm");
+  if(form)form.addEventListener("submit",handleAuthSubmit);
+  return;
+ }
+
+ nav.style.visibility="visible";
+ document.querySelectorAll("nav button").forEach(b=>b.dataset.v===S.v?b.setAttribute("aria-current","page"):b.removeAttribute("aria-current"));
+ $("#cnt").textContent=S.appts.length||"";
+ $("#cnt").style.display=S.appts.length?"":"none";
+ $("#app").innerHTML=S.v==="doctors"?vDocs():S.v==="visits"?vVisits():vRem();
+ if(S.v==="doctors"){
+  const i=$("#q");
+  i.addEventListener("input",e=>{S.q=e.target.value;list()});
+  list();
+ }
+ persistState();
+}
+
+function filt(){let r=DOCS.filter(d=>(S.f==="All"||d.s===S.f)&&(d.n+d.s).toLowerCase().includes(S.q.toLowerCase()));
+ if(S.sort==="rating")r=[...r].sort((a,b)=>b.r-a.r);if(S.sort==="name")r=[...r].sort((a,b)=>a.n.localeCompare(b.n));return r}
+function list(){const r=filt();$("#cntdocs").textContent=r.length+(r.length===1?" doctor":" doctors")+" found";
+ $("#grid").innerHTML=r.length?r.map(d=>`<article class="card"><div class="doc"><span class="av" aria-hidden="true">${d.ini}</span><div><b>${d.n}</b><span class="mut">${d.s}</span><div>★ <b style="display:inline">${d.r}</b></div></div></div><div class="mut">📍 ${d.l}</div><div class="next">Next available: ${nextFree(d.id)}</div><button class="btn full" onclick="book(${d.id})" aria-label="Book appointment with ${d.n}">Book appointment</button></article>`).join(""):`<div class="empty" style="grid-column:1/-1"><b>No doctors match “${S.q.replace(/[<>&]/g,"")}”.</b><p>Try a different name or choose “All”.</p><button class="btn" onclick="S.q='';S.f='All';render()">Clear search</button></div>`}
+function vDocs(){return `<div style="text-align:center"><h1>Find a doctor</h1><p class="sub">Welcome, <b>${esc(AUTH.currentUser.name)}</b>. Find the right healthcare professional and choose an appointment time that suits you.</p></div>
+<div class="search"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" value="${S.q.replace(/"/g,"&quot;")}" placeholder="Search by name or specialty (e.g. Cardiology)" aria-label="Search doctors"></div>
+<div class="chips" role="group" aria-label="Filter by specialty">${SPECS.map(s=>`<button class="chip" aria-pressed="${S.f===s}" onclick="S.f='${s}';render()">${s}</button>`).join("")}</div>
+<div class="bar"><h2 id="cntdocs" aria-live="polite"></h2><label class="mut">Sort by <select onchange="S.sort=this.value;list()"><option value="relevance"${S.sort=="relevance"?" selected":""}>Relevance</option><option value="rating"${S.sort=="rating"?" selected":""}>Highest rated</option><option value="name"${S.sort=="name"?" selected":""}>Name A–Z</option></select></label></div><div class="grid" id="grid"></div>`}
+function vVisits(){const up=[...S.appts].sort((a,b)=>a.date-b.date||a.time.localeCompare(b.time));
+ return `<div class="bar"><h1>My appointments</h1><button class="btn" onclick="S.v='doctors';render()">+ New appointment</button></div>
+${up.length?up.map(a=>{const d=DOCS[a.doc];return `<article class="card appt"><div class="date" aria-hidden="true"><small>${a.date.toLocaleDateString("en-GB",{month:"short"}).toUpperCase()}</small><strong>${a.date.getDate()}</strong></div><div class="info"><div class="t">${fT(a.time)}<span class="pill">✓ Confirmed</span></div><div><b>${d.n}</b> (${d.s})</div><div class="mut">${fD(a.date)} · 📍 ${d.l}</div><div class="mut">💬 Reason: ${a.reason}</div></div><div class="acts"><button class="btn" onclick="resched(${a.id})">Reschedule</button><button class="btn dng" onclick="cancel(${a.id})">Cancel</button></div></article>`}).join(""):`<div class="empty"><b>No upcoming appointments.</b><p>Book an appointment with one of our doctors.</p><button class="btn pri" onclick="S.v='doctors';render()">Find a doctor</button></div>`}
+<div class="sec">PAST VISITS</div>
+${S.past.map((p,i)=>`<article class="card appt"><div class="date" aria-hidden="true"><small>${p.date.toLocaleDateString("en-GB",{month:"short"}).toUpperCase()}</small><strong>${p.date.getDate()}</strong></div><div class="info"><div><b>${DOCS[p.doc].n}</b> (${DOCS[p.doc].s})</div><div class="mut">Completed · ${p.reason}</div></div><button class="btn ghost" onclick="summary(${i})">View summary</button></article>`).join("")}`}
+function vRem(){const p=S.pref;const sw=(k,t,d)=>`<div class="row"><div><b>${t}</b><div class="mut">${d}</div></div><button class="sw" role="switch" aria-checked="${p[k]}" aria-label="${t}" onclick="S.pref.${k}=!S.pref.${k};render()"></button></div>`;
+ const ch=["SMS","email","app notification"].filter((_,i)=>[p.sms,p.email,p.push][i]);
+ return `<h1>Reminders</h1><p class="sub">Choose how and when you would like to be reminded. These preferences are saved in this browser; external notifications are not sent.</p>
+<div class="card" style="margin-bottom:1.2rem"><h2 style="margin-top:0;font-size:1.1rem">How should we remind you?</h2>${sw("sms","SMS","Text message to your phone")}${sw("email","Email","Sent to "+esc(AUTH.currentUser.email))}${sw("push","App notification","Pop-up on this device")}
+<div class="row"><label for="wh"><b>Send reminder</b><div class="mut">Before each appointment</div></label><select id="wh" onchange="S.pref.when=this.value;render()" style="padding:.6rem;border:1.5px solid var(--line);border-radius:10px;background:var(--card);min-height:44px">${["1 hour","3 hours","24 hours","48 hours"].map(w=>`<option${w===p.when?" selected":""}>${w}</option>`).join("")}</select></div></div>
+<h2 style="font-size:1.1rem">Saved reminder preferences</h2>
+${!ch.length?`<div class="note">All reminders are off. You may miss your appointments — turn on at least one option above.</div>`:""}
+${S.appts.length&&ch.length?[...S.appts].sort((a,b)=>a.date-b.date).map(a=>`<div class="card" style="margin-bottom:.7rem">🔔 <b>${DOCS[a.doc].n}</b> — ${fD(a.date)}, ${fT(a.time)}<div class="mut">${p.when} before, by ${ch.join(", ")}</div></div>`).join(""):S.appts.length?"":`<div class="empty">No appointments to remind you about.</div>`}`}
+
+/* modals */
+function open(h){$("#layer").innerHTML=`<div class="ov" onclick="if(event.target===this)closeM()"><div class="dlg" role="dialog" aria-modal="true">${h}</div></div>`;const f=$("#layer button");f&&f.focus()}
+function closeM(){$("#layer").innerHTML=""}
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeM();if(AUTH.menuOpen){AUTH.menuOpen=false;renderHeaderProfile();}}});
+let B=null;
+function book(id,rid){B={doc:id,off:1,slot:null,reason:"",step:1,rid:rid||null};if(rid){const a=S.appts.find(x=>x.id===rid);B.reason=a.reason}bk()}
+function bk(){const d=DOCS[B.doc],t=B.rid?"Reschedule appointment":"Book appointment";
+ const head=`<button class="btn ghost" style="float:right;min-height:36px" onclick="closeM()" aria-label="Close">✕</button><h3>${t}</h3><div class="mut">${d.n} · ${d.s} · 📍 ${d.l}</div><div class="steps" aria-label="Step ${B.step} of 3"><i class="on"></i><i class="${B.step>1?"on":""}"></i><i class="${B.step>2?"on":""}"></i></div>`;
+ if(B.step===1){open(head+`<b>1. Pick a day</b><div class="days">${[1,2,3,4,5,6,7].map(o=>`<button aria-pressed="${B.off===o}" onclick="B.off=${o};B.slot=null;bk()">${fD(addD(o))}</button>`).join("")}</div><b>Pick a time</b><div class="slots">${SLOTS.map((s,i)=>`<button ${slotAvailable(B.doc,B.off,i)?"":"disabled"} aria-pressed="${B.slot===s}" onclick="B.slot='${s}';bk()">${fT(s)}</button>`).join("")}</div><div class="mut">Crossed-out times are already taken.</div><div class="foot"><button class="btn" onclick="closeM()">Cancel</button><button class="btn pri" ${B.slot?"":"disabled"} onclick="B.step=2;bk()">Continue</button></div>`)}
+ else if(B.step===2){open(head+`<label class="l" for="rs">2. Reason for visit</label><select id="rs" onchange="B.reason=this.value;document.getElementById('nx').disabled=!this.value">${["","Routine check-up","Follow-up visit","New symptom or concern","Prescription review","Other"].map(r=>`<option value="${r}"${r===B.reason?" selected":""}>${r||"Select a reason…"}</option>`).join("")}</select><p class="mut">Your doctor sees this before the visit. Don’t include sensitive details.</p><div class="foot"><button class="btn" onclick="B.step=1;bk()">Back</button><button id="nx" class="btn pri" ${B.reason?"":"disabled"} onclick="B.step=3;bk()">Review</button></div>`)}
+ else{open(head+`<b>3. Check and confirm</b><div class="sum"><div><span>Patient</span><b>${esc(AUTH.currentUser.name)}</b></div><div><span>Doctor</span><b>${d.n}</b></div><div><span>Date</span><b>${fD(addD(B.off))}</b></div><div><span>Time</span><b>${fT(B.slot)}</b></div><div><span>Where</span><b>${d.l}</b></div><div><span>Reason</span><b>${B.reason}</b></div></div><p class="mut">Your saved reminder preference is ${S.pref.when} before by ${[S.pref.sms&&"SMS",S.pref.email&&"email",S.pref.push&&"app"].filter(Boolean).join(", ")||"no channel (reminders are off)"}. No notification will be sent.</p><div class="foot"><button class="btn" onclick="B.step=2;bk()">Back</button><button class="btn pri" onclick="confirmB()">${B.rid?"Confirm new time":"Confirm booking"}</button></div>`)}}
+function confirmB(){const o={doc:B.doc,date:addD(B.off),time:B.slot,reason:B.reason};
+ if(B.rid){Object.assign(S.appts.find(x=>x.id===B.rid),o)}else S.appts.push({id:S.uid++,...o});
+ closeM();S.v="visits";render();toast(B.rid?"Appointment time updated in this prototype.":"Appointment saved in this browser.");window.scrollTo(0,0)}
+function resched(id){book(S.appts.find(a=>a.id===id).doc,id)}
+function cancel(id){const a=S.appts.find(x=>x.id===id),d=DOCS[a.doc];
+ open(`<h3>Cancel this appointment?</h3><p>${d.n} · ${fD(a.date)}, ${fT(a.time)}</p><p class="mut">Others may take this time slot. You can book again at any time.</p><div class="foot"><button class="btn" onclick="closeM()">Keep appointment</button><button class="btn dng" onclick="doCancel(${id})">Yes, cancel it</button></div>`)}
+function doCancel(id){S.appts=S.appts.filter(a=>a.id!==id);closeM();render();toast("Appointment cancelled in this prototype.")}
+function summary(i){const p=S.past[i];open(`<h3>Visit summary</h3><p class="mut">${DOCS[p.doc].n} · ${fD(p.date)}</p><div class="sum"><b>${p.reason}</b><p style="margin:.4rem 0 0">${p.note}</p></div><div class="foot"><span></span><button class="btn pri" onclick="closeM()">Close</button></div>`)}
+
+/* tools */
+$("nav").addEventListener("click",e=>{const b=e.target.closest("button");if(b){S.v=b.dataset.v;render();window.scrollTo(0,0)}});
+$("#tsz").onclick=()=>{S.sz=(S.sz+1)%3;document.documentElement.style.fontSize=[16,19,22][S.sz]+"px";toast("Text size: "+["Normal","Large","Extra large"][S.sz])};
+$("#tth").onclick=()=>{const r=document.documentElement,d=r.dataset.theme==="dark"||(!r.dataset.theme&&matchMedia("(prefers-color-scheme:dark)").matches);r.dataset.theme=d?"light":"dark"};
+
+render();
+</script></body></html>
